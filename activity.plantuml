@@ -68,7 +68,7 @@ if (Кредитный продукт не существует?) then (да)
   stop
 endif
 |Insurance Service|
-:GET /bank_api/v1/loan_products/credit_rate;
+:GET /bankapi/v1/loan_products/credit_rate;
 |BankAPI|
 :Вернуть текущую ставку;
 |Insurance Service|
@@ -106,7 +106,7 @@ if (Клиент соглашается на инверсный вариант?)
   stop
 else (нет)
   |Insurance Service|
-  :GET /bank_api/v1/loanagreements/risk-weights;
+  :GET /bankapi/v1/loanagreements/risk-weights;
   |BankAPI|
   :Передать коэффициент в Insurance Service;
   |Insurance Service|
