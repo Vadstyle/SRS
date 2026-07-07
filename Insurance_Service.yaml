@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 openapi: 3.0.0
 info:
   version: 1.0.0
@@ -9,7 +8,6 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
   
-
 components:
   securitySchemes:
     BearerAuth:
@@ -90,13 +88,6 @@ components:
             "message": "try again later"}
           schema:
             $ref: '#/components/schemas/Error_Response'
-    500_Internal_Server_Error:
-      description: Internal Server Error
-      content:
-        application/json:
-          example: {
-            "error": "Internal Server Error",
-            "message": "Не удалось выполнить операцию. Обратитесь в службу поддержки."}
     504_Gateway_Timeout_Error:
       description: Gateway Timeout Error
       content:
@@ -132,7 +123,6 @@ components:
         - credit_product_status
         - loan_amount
         - current_loan_amount
-        - currency
         - loan_length
         - interest_rate
         - payment_frequency
@@ -144,11 +134,14 @@ components:
           type: string
           format: uuid
           description: Уникальный идентификатор кредитного продукта
+          minLength: 36
+          maxLength: 36
           example: 123e4567-e89b-12d3-a456-426614174000
         product_name:
           type: string
           description: Название продукта
           minLength: 1
+          maxLength: 100
           example: Льготный кредит на квартиру
         product_type:
           type: string
@@ -159,7 +152,7 @@ components:
             - Межбанковский кредит
             - Государственный кредит
           example: Государственный кредит
-        credit_product status:
+        credit_product_status:
           type: string
           description: Статус продукта
           enum:
@@ -171,32 +164,26 @@ components:
           format: decimal
           description: Сумма кредита
           minimum: 1
+          maximum: 1000000000
           example: 1000000
         current_loan_amount:
           type: string
           format: decimal
           description: Оставшаяся сумма кредита
-          minimum: 1
-          example: 500000
-        currency:
-          type: string
-          description: Валюта суммы продукта
-          enum:
-            - рубль
-            - евро
-            - доллар
-          example: доллар
+          minimum: 0
+          maximum: 1000000000
         loan_length:
           type: integer
           description: Срок кредита в месяцах
-          minLength: 1
+          minimum: 1
+          maximum: 600
           example: 2
         interest_rate:
           type: string
           format: decimal
           description: Годовая ставка в процентах
-          minLength: 1
-          maxLength: 100
+          minimum: 0
+          maximum: 100
           example: 13.6
         payment_frequency:
           type: string
@@ -216,6 +203,8 @@ components:
           type: string
           format: uuid
           description: Уникальный идентификатор заемщика
+          minLength: 36
+          maxLength: 36
           example: 123e4567-e89b-12d3-a456-426614174000
         loan_created_at:
           type: string
@@ -238,18 +227,21 @@ components:
         borrow_id:
           type: string
           format: uuid
+          minLength: 36
+          maxLength: 36
           description: Идентификатор клиента
           example: 123e4567-e89b-12d3-a456-426614174000
         age:
           type: integer
           description: Возраст заемщика
-          minLength: 2
-          maxLength: 2
+          minimum: 18
+          maximum: 100
           example: 32
         monthly_income:
           type: number
           description: Официальный ежемесячный доход
-          minLength: 5
+          minimum: 0
+          maximum: 100000000
           example: 250000
         employment_status:
           type: string
@@ -262,15 +254,15 @@ components:
         credit_score:
           type: integer
           description: Скоринговый балл
-          minLength: 1
-          maxLength: 3
+          minimum: 0
+          maximum: 100
           example: 65
         debt_to_income:
           type: string
           format: decimal
           description: Отношение ежемесячных платежей по всем кредитам к доходу
-          minLength: 1
-          maxLength: 4
+          minimum: 0
+          maximum: 100
           example: 1.65
         _links:
             $ref: '#/components/schemas/Links'
@@ -306,11 +298,17 @@ components:
           maxLength: 255
         payment:
           type: array
+          minItems: 1
+          maxItems: 100
           items:
             $ref: '#/components/schemas/payment'
+        payment_status:
+          $ref: '#/components/schemas/payment_status'
         borrow_id:
           type: string
           format: uuid
+          minLength: 36
+          maxLength: 36
           description: Идентификатор клиента
           example: 123e4567-e89b-12d3-a456-426614174000
         created_at:
@@ -331,19 +329,36 @@ components:
       required:
         - payment_id
         - payment_details
+        - payment summary
+        - currency
         - paid_at
       properties:
         payment_id:
           type: string
           format: uuid
+          minLength: 36
+          maxLength: 36
           description: уникальный идентификатор оплаты
           example: 123e4567-e89b-12d3-a456-426614174000
         payment_details:
           type: string
           description: реквизиты оплаты (RNN)
-          minLength: 1
+          minLength: 12
           maxLength: 12
           example: 123456789012
+        payment_sum:
+          type: string
+          format: decimal
+          description: Размер оплаты
+          example: 15000
+        currency:
+          type: string
+          description: Валюта суммы продукта
+          enum:
+            - рубль
+            - евро
+            - доллар
+          example: доллар
         paid_at:
           type: string
           format: date-time
@@ -351,6 +366,77 @@ components:
           example: 23.05.2026 19:59 
         _links:
             $ref: '#/components/schemas/Links'
+    insurance_status:
+      type: object
+      description: Статус оформления страхования
+      required:
+        - contract_id
+        - status
+        - updated_at
+      properties:
+        contract_id:
+          type: string
+          format: uuid
+          minLength: 36
+          maxLength: 36
+          description: Идентификатор договора страхования
+          example: 123e4567-e89b-12d3-a456-426614174000
+        status:
+          type: string
+          description: Текущий статус обработки
+          enum:
+            - pending
+            - processing
+            - completed
+            - rejected
+          example: completed
+        message:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Дополнительная информация
+          example: Договор успешно оформлен
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-05-23 19:59:00
+    payment_status:
+      type: object
+      description: Статус обработки платежа
+      required:
+        - payment_id
+        - status
+        - updated_at
+      properties:
+        payment_id:
+          type: string
+          format: uuid
+          minLength: 36
+          maxLength: 36
+          description: Идентификатор платежа
+          example: 123e4567-e89b-12d3-a456-426614174000
+        status:
+          type: string
+          description: Статус обработки платежа
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+          example: processing
+        message:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Дополнительная информация
+          example: Ожидается подтверждение от банка
+        updated_at:
+          type: string
+          format: date-time
+          description: Время последнего изменения статуса
+          example: 2026-05-23 19:59:00
+        _links:
+          $ref: '#/components/schemas/Links'
     credit_products:
       type: array
       description: Список кредитных продуктов
@@ -383,6 +469,8 @@ components:
         href:
           type: string
           format: uri
+          minLength: 1
+          maxLength: 32000
           example: /api/v1/insurance_contracts/123
         method:
           type: string
@@ -393,6 +481,8 @@ components:
             - DELETE
         rel:
           type: string
+          minLength: 1
+          maxLength: 30
           example: self
     Links:
       type: object
@@ -415,69 +505,6 @@ components:
           $ref: '#/components/schemas/Link'
         delete:
           $ref: '#/components/schemas/Link'
-    insurance_status:
-      type: object
-      description: Статус оформления страхования
-      required:
-        - contract_id
-        - status
-        - updated_at
-      properties:
-        contract_id:
-          type: string
-          format: uuid
-          description: Идентификатор договора страхования
-          example: 123e4567-e89b-12d3-a456-426614174000
-        status:
-          type: string
-          description: Текущий статус обработки
-          enum:
-            - pending
-            - processing
-            - completed
-            - rejected
-          example: completed
-        message:
-          type: string
-          description: Дополнительная информация
-          example: Договор успешно оформлен
-        updated_at:
-          type: string
-          format: date-time
-          example: 2026-05-23 19:59:00
-    payment_status:
-      type: object
-      description: Статус обработки платежа
-      required:
-        - payment_id
-        - status
-        - updated_at
-      properties:
-        payment_id:
-          type: string
-          format: uuid
-          description: Идентификатор платежа
-          example: 123e4567-e89b-12d3-a456-426614174000
-        status:
-          type: string
-          description: Статус обработки платежа
-          enum:
-            - pending
-            - processing
-            - completed
-            - failed
-          example: processing
-        message:
-          type: string
-          description: Дополнительная информация
-          example: Ожидается подтверждение от банка
-        updated_at:
-          type: string
-          format: date-time
-          description: Время последнего изменения статуса
-          example: 2026-05-23 19:59:00
-        _links:
-          $ref: '#/components/schemas/Links'
 
 paths:
   /api/v1/credit_products:
@@ -488,31 +515,148 @@ paths:
       security:
         - BearerAuth: []
       summary: Получение списка кредитных продуктов
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Номер страницы
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: Количество элементов на странице
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 10
+        - name: search
+          in: query
+          required: false
+          description: Полнотекстовый поиск по названию кредитного продукта
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 100
+            example: кредит
+        - name: product_type
+          in: query
+          required: false
+          description: Фильтр по типу кредитного продукта
+          schema:
+            type: string
+            enum:
+              - Кредит физическим лицам
+              - Кредит юридическим лицам
+              - Межбанковский кредит
+              - Государственный кредит
+        - name: credit_product_status
+          in: query
+          required: false
+          description: Фильтр по статусу продукта
+          schema:
+            type: string
+            enum:
+              - активный
+              - архивный
+        - name: loan_amount_min
+          in: query
+          required: false
+          description: Минимальная сумма кредита
+          schema:
+            type: number
+            minimum: 0
+            example: 100000
+        - name: loan_amount_max
+          in: query
+          required: false
+          description: Максимальная сумма кредита
+          schema:
+            type: number
+            minimum: 0
+            example: 1000000
+        - name: interest_rate_min
+          in: query
+          required: false
+          description: Минимальная процентная ставка
+          schema:
+            type: number
+            minimum: 0
+            maximum: 100
+            example: 5
+        - name: interest_rate_max
+          in: query
+          required: false
+          description: Максимальная процентная ставка
+          schema:
+            type: number
+            minimum: 0
+            maximum: 100
+            example: 15
+        - name: sort
+          in: query
+          required: false
+          description: Поле сортировки
+          schema:
+            type: string
+            enum:
+              - loan_amount
+              - interest_rate
+              - loan_length
+              - loan_created_at
+            example: loan_amount
+        - name: direction
+          in: query
+          required: false
+          description: Направление сортировки
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/get_credit_products'
-        '400':
-          $ref: '#/components/responses/400_Bad_Request'
-        '401':
-          $ref: '#/components/responses/401_Unauthorized'
-        '403':
-          $ref: '#/components/responses/403_Forbidden'
-        '404':
-          $ref: '#/components/responses/404_Invalid_Access'
-        '408':
-          $ref: '#/components/responses/408_Request_Timeout_Error'
-        '423':
-          $ref: '#/components/responses/423_Locked'
-        '429':
-          $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
-        '504':
-          $ref: '#/components/responses/504_Gateway_Timeout_Error'
+                type: object
+                required:
+                  - content
+                  - pagination
+                properties:
+                  content:
+                    type: array
+                    description: Список кредитных продуктов
+                    items:
+                      $ref: '#/components/schemas/credit_product'
+                  pagination:
+                    type: object
+                    required:
+                      - page
+                      - size
+                      - total_elements
+                      - total_pages
+                    properties:
+                      page:
+                        type: integer
+                        example: 0
+                      size:
+                        type: integer
+                        example: 20
+                      total_elements:
+                        type: integer
+                        example: 156
+                      total_pages:
+                        type: integer
+                        example: 8
           
   /api/v1/credit_products/{credit_product_id}:
     get:
@@ -551,8 +695,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
         '504':
           $ref: '#/components/responses/504_Gateway_Timeout_Error'
       
@@ -564,15 +706,148 @@ paths:
       security:
         - BearerAuth: []
       summary: Получение списка договоров страхования
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Номер страницы
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          example: 0
+      - name: size
+        in: query
+        required: false
+        description: Количество записей на странице
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          example: 10
+      - name: search
+        in: query
+        required: false
+        description: Поиск по идентификатору заемщика или данным страхования
+        schema:
+          type: string
+          minLength: 3
+          maxLength: 255
+          example: 123e4567
+      - name: insurance_type
+        in: query
+        required: false
+        description: Фильтр по типу страхования
+        schema:
+          type: string
+          enum:
+            - инверсивное страхование
+            - страхование с залогом
+          example: страхование с залогом
+      - name: insurance_level
+        in: query
+        required: false
+        description: Фильтр по уровню страхования
+        schema:
+          type: string
+          enum:
+            - полное страхование
+            - базовое страхование
+          example: полное страхование
+      - name: borrow_id
+        in: query
+        required: false
+        description: Фильтр по идентификатору заемщика
+        schema:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+      - name: payment_status
+        in: query
+        required: false
+        description: Статус оплаты страхования
+        schema:
+          type: string
+          enum:
+            - pending
+            - processing
+            - completed
+            - failed
+      - name: created_at_min
+        in: query
+        required: false
+        description: Начальная дата создания договора
+        schema:
+          type: string
+          format: date-time
+          example: 2026-01-01 00:00:00
+      - name: created_at_max
+        in: query
+        required: false
+        description: Конечная дата создания договора
+        schema:
+          type: string
+          format: date-time
+          example: 2026-12-31 23:59:59
+      - name: sort
+        in: query
+        required: false
+        description: Поле сортировки
+        schema:
+          type: string
+          enum:
+            - created_at
+            - updated_at
+            - insurance_type
+            - insurance_level
+          example: created_at
+      - name: direction
+        in: query
+        required: false
+        description: Направление сортировки
+        schema:
+          type: string
+          enum:
+            - asc
+            - desc
+          default: desc
+          example: desc
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/get_insurance_contracts'
-        '400':
-          $ref: '#/components/responses/400_Bad_Request'
+                required:
+                - content
+                - pagination
+                properties:
+                  content:
+                    type: array
+                    description: Список договоров страхования
+                    items:
+                      $ref: '#/components/schemas/insurance_contract'
+                  pagination:
+                    type: object
+                    required:
+                      - page
+                      - size
+                      - total_elements
+                      - total_pages
+                    properties:
+                      page:
+                        type: integer
+                        example: 0
+                      size:
+                        type: integer
+                        example: 20
+                      total_elements:
+                        type: integer
+                        example: 350
+                      total_pages:
+                        type: integer
+                        example: 18
         '401':
           $ref: '#/components/responses/401_Unauthorized'
         '403':
@@ -585,8 +860,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
     
     post:
       operationId: create_insurance_contract
@@ -625,87 +898,7 @@ paths:
         '423':
           $ref: '#/components/responses/423_Locked'
         '429':
-          $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
-
-    patch:
-      operationId: update_insurance_contract
-      tags:
-        - Insurance Contracts
-      security:
-        - BearerAuth: []
-      summary: Изменить данные страхования
-      parameters:
-        - name: Idempotency-Key
-          in: header
-          required: true
-          description: Ключ идемпотентности
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/insurance_contract'
-        '400':
-          $ref: '#/components/responses/400_Bad_Request_Idempotency'
-        '401':
-          $ref: '#/components/responses/401_Unauthorized'
-        '403':
-          $ref: '#/components/responses/403_Forbidden'
-        '404':
-          $ref: '#/components/responses/404_Invalid_Access'
-        '408':
-          $ref: '#/components/responses/408_Request_Timeout_Error'
-        '409':
-          $ref: '#/components/responses/409_Conflict'
-        '423':
-          $ref: '#/components/responses/423_Locked'
-        '429':
-          $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error' 
-
-    delete:
-      operationId: delete_insuranceContract
-      tags:
-        - Insurance Contracts
-      security:
-        - BearerAuth: []
-      summary: Отменить страхование
-      parameters:
-        - name: Idempotency-Key
-          in: header
-          required: true
-          description: Ключ идемпотентности
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: No Content
-        '400':
-          $ref: '#/components/responses/400_Bad_Request_Idempotency'
-        '401':
-          $ref: '#/components/responses/401_Unauthorized'
-        '403':
-          $ref: '#/components/responses/403_Forbidden'
-        '404':
-          $ref: '#/components/responses/404_Invalid_Access'
-        '408':
-          $ref: '#/components/responses/408_Request_Timeout_Error'
-        '409':
-          $ref: '#/components/responses/409_Conflict'
-        '423':
-          $ref: '#/components/responses/423_Locked'
-        '429':
-          $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'        
+          $ref: '#/components/responses/429_Too_many_requests' 
 
   /api/v1/insurance_contracts/{contract_id}:
     get:
@@ -744,8 +937,94 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error' 
+    
+    patch:
+      operationId: update_insurance_contract
+      tags:
+        - Insurance Contracts
+      security:
+        - BearerAuth: []
+      summary: Изменить данные страхования
+      parameters:
+        - name: contract_id
+          in: path
+          required: true
+          description: Уникальный идентификатор кредитного продукта
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Ключ идемпотентности
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/insurance_contract'
+        '400':
+          $ref: '#/components/responses/400_Bad_Request_Idempotency'
+        '401':
+          $ref: '#/components/responses/401_Unauthorized'
+        '403':
+          $ref: '#/components/responses/403_Forbidden'
+        '404':
+          $ref: '#/components/responses/404_Invalid_Access'
+        '408':
+          $ref: '#/components/responses/408_Request_Timeout_Error'
+        '409':
+          $ref: '#/components/responses/409_Conflict'
+        '423':
+          $ref: '#/components/responses/423_Locked'
+        '429':
+          $ref: '#/components/responses/429_Too_many_requests'
+
+    delete:
+      operationId: delete_insuranceContract
+      tags:
+        - Insurance Contracts
+      security:
+        - BearerAuth: []
+      summary: Отменить страхование
+      parameters:
+        - name: contract_id
+          in: path
+          required: true
+          description: Уникальный идентификатор кредитного продукта
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Ключ идемпотентности
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/400_Bad_Request_Idempotency'
+        '401':
+          $ref: '#/components/responses/401_Unauthorized'
+        '403':
+          $ref: '#/components/responses/403_Forbidden'
+        '404':
+          $ref: '#/components/responses/404_Invalid_Access'
+        '408':
+          $ref: '#/components/responses/408_Request_Timeout_Error'
+        '409':
+          $ref: '#/components/responses/409_Conflict'
+        '423':
+          $ref: '#/components/responses/423_Locked'
+        '429':
+          $ref: '#/components/responses/429_Too_many_requests'   
   
   /api/v1/insurance_contracts/{contract_id}/status:
     get:
@@ -754,7 +1033,7 @@ paths:
         - Insurance Contracts
       security:
         - BearerAuth: []
-      summary: Получение статуса оформления страхования (Long Polling)
+      summary: Получение статуса оформления страхования
       description: Сервер удерживает соединение до появления нового статуса
       parameters:
         - name: contract_id
@@ -790,30 +1069,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/insurance_status'
-
         '204':
           description: За время ожидания изменений не произошло
-
         '400':
           $ref: '#/components/responses/400_Bad_Request'
-
         '401':
           $ref: '#/components/responses/401_Unauthorized'
-
         '403':
           $ref: '#/components/responses/403_Forbidden'
-
         '404':
           $ref: '#/components/responses/404_Invalid_Access'
-
         '408':
           $ref: '#/components/responses/408_Request_Timeout_Error'
-
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
 
   /api/v1/borrowers:
     get:
@@ -823,15 +1092,175 @@ paths:
       security:
         - BearerAuth: []
       summary: Просмотр заемщиков
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Номер страницы
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: Количество записей на странице
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 10
+        - name: search
+          in: query
+          required: false
+          description: Поиск по идентификатору заемщика
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 100
+            example: 123e4567
+        - name: age_min
+          in: query
+          required: false
+          description: Минимальный возраст заемщика
+          schema:
+            type: integer
+            minimum: 18
+            maximum: 100
+            example: 25
+        - name: age_max
+          in: query
+          required: false
+          description: Максимальный возраст заемщика
+          schema:
+            type: integer
+            minimum: 18
+            maximum: 100
+            example: 60
+        - name: monthly_income_min
+          in: query
+          required: false
+          description: Минимальный ежемесячный доход
+          schema:
+            type: number
+            minimum: 0
+            example: 50000
+        - name: monthly_income_max
+          in: query
+          required: false
+          description: Максимальный ежемесячный доход
+          schema:
+            type: number
+            minimum: 0
+            example: 500000
+        - name: employment_status
+          in: query
+          required: false
+          description: Статус занятости заемщика
+          schema:
+            type: string
+            enum:
+              - трудоустроен
+              - самозанятый
+              - безработный
+            example: трудоустроен
+        - name: credit_score_min
+          in: query
+          required: false
+          description: Минимальный скоринговый балл
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            example: 65
+        - name: credit_score_max
+          in: query
+          required: false
+          description: Максимальный скоринговый балл
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            example: 90
+        - name: debt_to_income_from
+          in: query
+          required: false
+          description: Минимальное отношение платежей к доходу
+          schema:
+            type: number
+            minimum: 0
+            maximum: 100
+            example: 15
+        - name: debt_to_income_to
+          in: query
+          required: false
+          description: Максимальное отношение платежей к доходу
+          schema:
+            type: number
+            minimum: 0
+            maximum: 100
+            example: 2
+        - name: sort
+          in: query
+          required: false
+          description: Поле сортировки
+          schema:
+            type: string
+            enum:
+              - age
+              - monthly_income
+              - credit_score
+              - debt_to_income
+            example: credit_score
+        - name: direction
+          in: query
+          required: false
+          description: Направление сортировки
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/get_borrowers'
-        '400':
-          $ref: '#/components/responses/400_Bad_Request'
+                type: object
+                required:
+                  - content
+                  - pagination
+                properties:
+                  content:
+                    type: array
+                    description: Список заемщиков
+                    items:
+                      $ref: '#/components/schemas/borrower'
+                  pagination:
+                    type: object
+                    required:
+                      - page
+                      - size
+                      - total_elements
+                      - total_pages
+                    properties:
+                      page:
+                        type: integer
+                        example: 0
+                      size:
+                        type: integer
+                        example: 20
+                      total_elements:
+                        type: integer
+                        example: 1200
+                      total_pages:
+                        type: integer
+                        example: 60
         '401':
           $ref: '#/components/responses/401_Unauthorized'
         '403':
@@ -844,8 +1273,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
     
     post:
       operationId: post_borrower
@@ -885,8 +1312,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
   
   /api/v1/borrowers/{borrow_id}:
     get:
@@ -924,8 +1349,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
   
     patch:
       operationId: patch_borrower
@@ -935,6 +1358,12 @@ paths:
         - BearerAuth: []
       summary: Изменить данные заемщика
       parameters:
+        - name: borrow_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
         - name: Idempotency-Key
           in: header
           required: true
@@ -965,8 +1394,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error' 
     
     delete:
       operationId: delete_borrower
@@ -976,6 +1403,12 @@ paths:
         - BearerAuth: []
       summary: Удалить аккаунт заемщика
       parameters:
+        - name: borrow_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
         - name: Idempotency-Key
           in: header
           required: true
@@ -1002,8 +1435,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error' 
   
   /api/v1/payments:
     post:
@@ -1044,8 +1475,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
         '504':
           $ref: '#/components/responses/504_Gateway_Timeout_Error'       
     
@@ -1056,15 +1485,137 @@ paths:
       security:
         - BearerAuth: []
       summary: Просмотр оплат страхования
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Номер страницы
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: Количество записей на странице
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+        - name: search
+          in: query
+          required: false
+          description: Поиск по идентификатору платежа или реквизитам оплаты
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 255
+            example: 123456789012
+        - name: status
+          in: query
+          required: false
+          description: Фильтр по статусу обработки платежа
+          schema:
+            type: string
+            enum:
+              - pending
+              - processing
+              - completed
+              - failed
+            example: completed
+        - name: contract_id
+          in: query
+          required: false
+          description: Фильтр по идентификатору договора страхования
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+        - name: borrow_id
+          in: query
+          required: false
+          description: Фильтр по идентификатору заемщика
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+        - name: paid_at_first_date
+          in: query
+          required: false
+          description: Начальная дата оплаты
+          schema:
+            type: string
+            format: date-time
+            example: 2026-01-01 00:00:00
+        - name: paid_at_last_date
+          in: query
+          required: false
+          description: Конечная дата оплаты
+          schema:
+            type: string
+            format: date-time
+            example: 2026-12-31 23:59:59
+        - name: sort
+          in: query
+          required: false
+          description: Поле сортировки
+          schema:
+            type: string
+            enum:
+              - paid_at
+              - created_at
+              - status
+            example: paid_at
+        - name: direction
+          in: query
+          required: false
+          description: Направление сортировки
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc  
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/get_payments'
-        '400':
-          $ref: '#/components/responses/400_Bad_Request'
+                type: object
+                required:
+                  - content
+                  - pagination
+                properties:
+                  content:
+                    type: array
+                    description: Список платежей
+                    items:
+                      $ref: '#/components/schemas/payment'
+                  pagination:
+                    type: object
+                    required:
+                      - page
+                      - size
+                      - total_elements
+                      - total_pages
+                    properties:
+                      page:
+                        type: integer
+                        example: 0
+                      size:
+                        type: integer
+                        example: 20
+                      total_elements:
+                        type: integer
+                        example: 540
+                      total_pages:
+                        type: integer
+                        example: 27
         '401':
           $ref: '#/components/responses/401_Unauthorized'
         '403':
@@ -1077,8 +1628,6 @@ paths:
           $ref: '#/components/responses/423_Locked'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
   
   /api/v1/payments/{payment_id}:
     get:
@@ -1115,9 +1664,7 @@ paths:
         '423':
           $ref: '#/components/responses/423_Locked'
         '429':
-          $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'  
+          $ref: '#/components/responses/429_Too_many_requests' 
     
   /api/v1/payments/{payment_id}/status:
     get:
@@ -1126,7 +1673,7 @@ paths:
         - Payment Info
       security:
         - BearerAuth: []
-      summary: Получение статуса оплаты (Long Polling)
+      summary: Получение статуса оплаты
       description: Сервер удерживает HTTP-соединение до появления нового статуса платежа либо до истечения времени ожидания 
       parameters:
         - name: payment_id
@@ -1176,7 +1723,5 @@ paths:
           $ref: '#/components/responses/408_Request_Timeout_Error'
         '429':
           $ref: '#/components/responses/429_Too_many_requests'
-        '500':
-          $ref: '#/components/responses/500_Internal_Server_Error'
         '504':
           $ref: '#/components/responses/504_Gateway_Timeout_Error'

@@ -153,8 +153,4 @@ fork again
   :Событие опубликовано;
 end fork
 stop
-<<<<<<< HEAD
 @enduml
-=======
-@enduml
->>>>>>> ab5d67942f6a5c4f56bebbd1332b8749fb91db5c
