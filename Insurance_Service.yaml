@@ -329,7 +329,7 @@ components:
       required:
         - payment_id
         - payment_details
-        - payment summary
+        - payment_sum
         - currency
         - paid_at
         - _links
