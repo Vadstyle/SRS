@@ -1,0 +1,375 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Схема валидации для приложения страхования в MongoDB",
+  "type": "object",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/Borrower"
+    },
+    {
+      "$ref": "#/definitions/CreditProduct"
+    },
+    {
+      "$ref": "#/definitions/InsuranceContract"
+    },
+    {
+      "$ref": "#/definitions/Payment"
+    }
+  ],
+  "definitions": {
+    "Borrower": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "borrow_id",
+        "age",
+        "monthly_income",
+        "employment_status",
+        "credit_score",
+        "debt_to_income"
+      ],
+      "properties": {
+        "borrow_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "age": {
+          "type": "integer",
+          "minimum": 18,
+          "maximum": 100
+        },
+        "monthly_income": {
+          "type": "number",
+          "minimum": 0
+        },
+        "employment_status": {
+          "type": "string",
+          "enum": [
+            "трудоустроен",
+            "самозанятый",
+            "безработный"
+          ]
+        },
+        "credit_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "debt_to_income": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "CreditProduct": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "credit_product_id",
+        "borrow_id",
+        "product_name",
+        "product_type",
+        "credit_product_status",
+        "loan_amount",
+        "current_loan_amount",
+        "loan_length",
+        "interest_rate",
+        "payment_frequency",
+        "insure_status",
+        "loan_created_at"
+      ],
+      "properties": {
+        "credit_product_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "borrow_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "product_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "product_type": {
+          "type": "string",
+          "enum": [
+            "Кредит физическим лицам",
+            "Кредит юридическим лицам",
+            "Межбанковский кредит",
+            "Государственный кредит"
+          ]
+        },
+        "credit_product_status": {
+          "type": "string",
+          "enum": [
+            "активный",
+            "архивный"
+          ]
+        },
+        "loan_amount": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 1000000000
+        },
+        "current_loan_amount": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "loan_length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600
+        },
+        "interest_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "payment_frequency": {
+          "type": "string",
+          "enum": [
+            "ежемесячно",
+            "ежегодно"
+          ]
+        },
+        "insure_status": {
+          "type": "string",
+          "enum": [
+            "нет страховки",
+            "есть страховка"
+          ]
+        },
+        "loan_created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "Payment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "payment_id",
+        "payment_details",
+        "payment_sum",
+        "currency",
+        "paid_at",
+        "payment_status"
+      ],
+      "properties": {
+        "payment_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "payment_details": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 12
+        },
+        "payment_sum": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "рубль",
+            "евро",
+            "доллар"
+          ]
+        },
+        "paid_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "payment_status": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "updated_at"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "processing",
+                "completed",
+                "failed"
+              ]
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    },
+    "InsuranceContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_id",
+        "credit_product_id",
+        "borrow_id",
+        "insurance_type",
+        "insurance_level",
+        "insurance_details",
+        "created_at",
+        "insurance_status",
+        "payments"
+      ],
+      "properties": {
+        "contract_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "credit_product_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "borrow_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "insurance_type": {
+          "type": "string",
+          "enum": [
+            "инверсивное страхование",
+            "страхование с залогом"
+          ]
+        },
+        "insurance_level": {
+          "type": "string",
+          "enum": [
+            "полное страхование",
+            "базовое страхование"
+          ]
+        },
+        "insurance_details": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "insurance_status": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "updated_at"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "processing",
+                "completed",
+                "rejected"
+              ]
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "payments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "payment_id",
+              "payment_details",
+              "payment_sum",
+              "currency",
+              "paid_at",
+              "payment_status"
+            ],
+            "properties": {
+              "payment_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "payment_details": {
+                "type": "string",
+                "minLength": 12,
+                "maxLength": 12
+              },
+              "payment_sum": {
+                "type": "number",
+                "minimum": 0
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "рубль",
+                  "евро",
+                  "доллар"
+                ]
+              },
+              "paid_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "payment_status": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "status",
+                  "updated_at"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "processing",
+                      "completed",
+                      "failed"
+                    ]
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
