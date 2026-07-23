@@ -356,9 +356,9 @@ components:
           type: string
           description: Валюта суммы продукта
           enum:
-            - рубль
-            - евро
-            - доллар
+            - RUB
+            - EUR
+            - USD
           example: доллар
         paid_at:
           type: string
@@ -1631,9 +1631,9 @@ paths:
                   type: string
                   description: Валюта платежа
                   enum:
-                    - рубль
-                    - евро
-                    - доллар
+                    - RUB
+                    - EUR
+                    - USD
       responses:
         '201':
           description: Created

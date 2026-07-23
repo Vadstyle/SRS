@@ -18,11 +18,11 @@ borrower
 |Атрибут|Тип данных|Ограничения|Описание|
 |-|-|-|-|
 |borrow_id|UUID|PK|Идентификатор заемщика|
-|age|INTEGER|NOT NULL, CHECK (age>0, age<100)|Возраст заемщика|
+|age|INTEGER|NOT NULL, CHECK (age &ge; 18, age &lt; 100)|Возраст заемщика|
 |monthly_income|NUMERIC (9,2)|NOT NULL, CHECK (monthly_income &ge; 0, monthly_income &le; 100000000)|Официальный ежемесячный доход|
-|employment_status|VARCHAR (12)|NOT NULL|Статус занятости|
+|employment_status|VARCHAR (12)|NOT NULL, CHECK (employment_status IN ('трудоустроен', 'самозанятый', 'безработный'))|Статус занятости|
 |credit_score|INTEGER|NOT NULL, CHECK (credit_score &ge; 0, credit_score &le; 100)|Скоринговый балл|
-|debt_to_income|NUMERIC (5,2)|NOT NULL, CHECK (credit_score &ge; 0, credit_score &le; 100)|Отношение ежемесячных платежей по всем кредитам к доходу|
+|debt_to_income|NUMERIC (5,2)|NOT NULL, CHECK (debt_to_income &ge; 0, debt_to_income &le; 100)|Отношение ежемесячных платежей по всем кредитам к доходу|
 
 credit_product
 
@@ -31,14 +31,14 @@ credit_product
 |credit_product_id|UUID|PK|Идентификатор кредитного продукта|
 |borrow_id|UUID|FK, NOT NULL|Идентификатор заемщика|
 |product_name|VARCHAR (100)|NOT NULL, UNIQUE|Название продукта|
-|product_type|VARCHAR (23)|CHECK (product_type IN (Кредит физическим лицам, Кредит юридическим лицам, Межбанковский кредит, Государственный кредит))|Тип кредитного продукта|
-|credit_product_status|VARCHAR (8)|NOT NULL|Статус продукта|
+|product_type|VARCHAR (23)|CHECK (product_type IN ('Кредит физическим лицам', 'Кредит юридическим лицам', 'Межбанковский кредит', 'Государственный кредит'))|Тип кредитного продукта|
+|credit_product_status|VARCHAR (8)|NOT NULL, CHECK (credit_product_status IN ('активный', 'архивный'))|Статус продукта|
 |loan_amount|NUMERIC (11,2)|NOT NULL, CHECK (loan_amount &gt; 0, loan_amount &le; 100000000)|Сумма кредита|
-|current_loan_amount|NUMERIC (11,2)|NOT NULL, CHECK (current_loan_amount &ge 0, current_loan_amount &le; 100000000)|Оставшаяся сумма кредита|
+|current_loan_amount|NUMERIC (11,2)|NOT NULL, CHECK (current_loan_amount &ge; 0 current_loan_amount &le; 100000000)|Оставшаяся сумма кредита|
 |loan_length|INTEGER|NOT NULL, CHECK (loan_length &ge; 1, loan_length &le; 600)|Срок кредита в месяцах|
 |interest_rate|NUMERIC (5,2)|NOT NULL, CHECK (interest_rate &ge; 1, interest_rate &le; 100)|Годовая ставка в процентах|
-|payment_frequency|VARCHAR (10)|NOT NULL|Частота платежей|
-|insure_status|VARCHAR (14)|NOT NULL|Статус страхования кредитного продукта|
+|payment_frequency|VARCHAR (10)|NOT NULL, CHECK (payment_frequency IN ('ежемесячно', 'ежегодно'))|Частота платежей|
+|insure_status|VARCHAR (14)|NOT NULL, CHECK (insure_status IN ('нет страховки', 'есть страховка'))|Статус страхования кредитного продукта|
 |loan_created_at|TIMESTAMP|NOT NULL|Дата и время создания страхования|
 
 insurance_contract
@@ -48,8 +48,8 @@ insurance_contract
 |contract_id|UUID|PK|Идентификатор договора страхования|
 |credit_product_id|UUID|FK, NOT NULL|Идентификатор кредитного продукта|
 |borrow_id|UUID|FK, NOT NULL|Идентификатор заемщика|
-|insurance_type|VARCHAR (23)|CHECK (insurance_type IN (инверсивное страхование, страхование с залогом))|Тип страхования|
-|insurance_level|VARCHAR (19)|CHECK (insurance_level IN (инверсивное страхование, страхование с залогом))|Уровень страхования|
+|insurance_type|VARCHAR (23)|CHECK (insurance_type IN ('инверсивное страхование', 'страхование с залогом'))|Тип страхования|
+|insurance_level|VARCHAR (19)|CHECK (insurance_level IN ('полное страхование', 'базовое страхование'))|Уровень страхования|
 |insurance_details|VARCHAR (255)|NOT NULL|Детали страхования|
 |created_at|TIMESTAMP|NOT NULL|Дата и время страхования|
 |updated_at|TIMESTAMP||Дата и время обновления страхования|
@@ -62,7 +62,7 @@ payment
 |contract_id|UUID|FK, NOT NULL|Идентификатор договора страхования|
 |payment_details|VARCHAR (12)|NOT NULL|Реквизиты оплаты (RNN)|
 |payment_sum|NUMERIC (9,2)|NOT NULL, CHECK (payment_sum &gt; 0, payment_sum &le; 1000000)|Размер оплаты|
-|currency|VARCHAR (6)|NOT NULL|Валюта|
+|currency|VARCHAR (3)|NOT NULL, CHECK (currency IN ('RUB', 'USD', 'EUR'))|Валюта|
 |paid_at|TIMESTAMP|NOT NULL|Дата и время оплаты страхования|
 
 payment_status
@@ -79,7 +79,7 @@ insurance_status
 |Атрибут|Тип данных|Ограничения|Описание|
 |-|-|-|-|
 |contract_id|UUID|PK|Идентификатор договора страхования|
-|status|VARCHAR (10)|CHECK (status IN (pending, processing, completed, failed))|Текущий статус обработки|
+|status|VARCHAR (10)|NOT NULL|Текущий статус обработки|
 |message|VARCHAR (255)|NOT NULL|Дополнительная информация|
 |updated_at|TIMESTAMP||Время последнего изменения статуса|
 

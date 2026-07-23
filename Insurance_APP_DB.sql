@@ -87,9 +87,9 @@ CREATE TABLE payment (
     paid_at TIMESTAMP NOT NULL,
 	CHECK (payment_sum BETWEEN 0 AND 1000000),
 	CHECK (currency IN (
-            'рубль',
-            'евро',
-            'доллар'
+            'RUB',
+            'EUR',
+            'USD'
         )),
 	FOREIGN KEY (contract_id)
         REFERENCES insurance_contract(contract_id)

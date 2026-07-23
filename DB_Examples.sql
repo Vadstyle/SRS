@@ -104,7 +104,7 @@ VALUES
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     '123456789012',
     18000.00,
-    'рубль',
+    'RUB',
     '2026-05-24 12:15:00'
 ),
 (
@@ -112,7 +112,7 @@ VALUES
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     '123456789013',
     18000.00,
-    'рубль',
+    'RUB',
     '2026-06-24 12:15:00'
 );
 

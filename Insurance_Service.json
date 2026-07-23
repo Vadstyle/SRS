@@ -286,9 +286,9 @@
         "currency": {
           "type": "string",
           "enum": [
-            "рубль",
-            "евро",
-            "доллар"
+            "RUB",
+            "EUR",
+            "USD"
           ]
         },
         "paid_at": {

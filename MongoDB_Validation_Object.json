@@ -36,7 +36,7 @@
               "payment_id": "11111111-2222-3333-4444-555555555555",
               "payment_details": "987654321098",
               "payment_sum": 15000,
-              "currency": "рубль",
+              "currency": "RUB",
               "paid_at": "2025-02-01T10:00:00Z",
               "payment_status": {
                 "status": "completed",
@@ -48,7 +48,7 @@
               "payment_id": "66666666-7777-8888-9999-aaaaaaaaaaaa",
               "payment_details": "123123123123",
               "payment_sum": 15000,
-              "currency": "рубль",
+              "currency": "RUB",
               "paid_at": "2025-03-01T10:00:00Z",
               "payment_status": {
                 "status": "processing",
